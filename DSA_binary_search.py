@@ -1,31 +1,14 @@
+import time
+
 # step 1
 
 # binary search
 # cards is in descending order
 
-def location_test(cards, query, mid):
-    mid_number = cards[mid]
-    if mid_number == query:
-        if cards[mid-1] == query and mid-1 >= 0:
-            return "left"
-        else:
-            return "found"
-    elif mid_number < query:
-        return "left"
-    else:
-        return "right"
-
-
-def locate_card(cards, query):
-    lo= 0
-    hi = len(cards)-1
-
+def binary_search(lo, hi, condition):
     while lo <= hi:
-        mid = (lo + hi)//2
-        mid_number = cards[mid]
-
-        print("lo:", lo, "hi", hi, "mid", mid, "mid_number", mid_number)
-        result = location_test(cards, query, mid)
+        mid = (lo + hi) // 2
+        result = condition(mid)
 
         if result == "right":
             lo = mid + 1
@@ -33,9 +16,23 @@ def locate_card(cards, query):
             hi = mid - 1
         else:
             return mid
-
     return -1
 
+
+def locate_card(cards, query):
+    def condition(mid):
+        mid_number = cards[mid]
+        if mid_number == query:
+            if cards[mid - 1] == query and mid - 1 >= 0:
+                return "left"
+            else:
+                return "found"
+        elif mid_number < query:
+            return "left"
+        else:
+            return "right"
+
+    return binary_search(0, len(cards) - 1, condition)
 
 
 # step 2
@@ -74,8 +71,23 @@ tests.append({
 
 })
 
+tests.append({
+    "input": {
+        "cards": list(range(10000000, 0, -1)),
+        "query": 2
+    },
+    "output": 9999998
+})
+
 for test in tests:
-    print(locate_card(test["input"]["cards"], test["input"]["query"]))
+    start = time.process_time()
+    result = locate_card(test["input"]["cards"], test["input"]["query"])
+    end = time.process_time()
+    print("algorithm executing time: %f sec" % (end-start))
+    if test["output"] == result:
+        print("correct")
+    else:
+        print("false")
 
 # 發現第三組測資有錯，修正
 # When we find that cards[mid] is equal to query, we need to check whether it is the first occurrence of query in the list i.e the number that comes before it.
@@ -83,4 +95,3 @@ for test in tests:
 # [8, 8, 6, 6, 6, 6, 6, 6, 3, 2, 2, 2, 0, 0, 0]
 #
 # To make it easier, we'll define a helper function called test_location, which will take the list cards, the query and mid as inputs.
-
